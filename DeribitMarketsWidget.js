@@ -22,50 +22,28 @@ const FUTURES = [
 
 // Widget Creation
 
-const loadFutureData = async (future) => {
-    const instrument_request = new Request(API_URL + `public/ticker?instrument_name=${future.instrument}`);
-    const instrument_response = await instrument_request.loadJSON();
+// https://stackoverflow.com/a/45322101
+const resolve = (path, obj) =>
+    path.split('.')
+        .reduce(
+            (prev, curr) =>
+                prev ? prev[curr] : null,
+            obj
+        );
 
-    const volatility_request = new Request(API_URL + `public/get_index_price?index_name=${future.volatility}`);
-    const volatility_response = await volatility_request.loadJSON();
+const parseJSON = async (url, values) => {
+    const response = await new Request(url).loadJSON();
+    const content = {};
 
-    return {
-        "price": instrument_response.result.mark_price,
-        "change": instrument_response.result.stats.price_change,
-        "volatility": volatility_response.result.index_price,
-    };
-}
-
-const createFutureStack = async (content) => {
-    content.addText("Futures");
-
-    const stack = content.addStack();
-    stack.layoutHorizontally();
-
-    const nameColum = stack.addStack();
-    nameColum.layoutVertically();
-    stack.addSpacer();
-
-    const priceColum = stack.addStack();
-    priceColum.layoutVertically();
-    stack.addSpacer();
-
-    const changeColum = stack.addStack();
-    changeColum.layoutVertically();
-    stack.addSpacer();
-
-    const volatilityColum = stack.addStack();
-    volatilityColum.layoutVertically();
-    stack.addSpacer();
-
-    for (const future of FUTURES) {
-        const data = await loadFutureData(future);
-
-        nameColum.addText(future.name);
-        priceColum.addText('$' + data.price.toFixed());
-        changeColum.addText(data.change.toPrecision(3) + '%');
-        volatilityColum.addText(data.volatility.toPrecision(3));
+    for (const [name, path] of Object.entries(values)) {
+        content[name] = resolve(path, response);
     }
+
+    return content;
+};
+
+const createFutureStack = async (stack) => {
+    console.log(await parseJSON(API_URL + "public/ticker?instrument_name=BTC-PERPETUAL", {"price": "result.mark_price"}));
 };
 
 const createWidget = async () => {
@@ -77,7 +55,7 @@ const createWidget = async () => {
     await createFutureStack(content);
 
     return widget;
-}
+};
 
 const createErrorWidget = async () => {
     const widget = new ListWidget();
@@ -89,7 +67,7 @@ const createErrorWidget = async () => {
     text.centerAlignText();
 
     return widget;
-}
+};
 
 // Script entry point
 
@@ -105,7 +83,7 @@ const main = async () => {
     } else {
         await widget.presentLarge();
     }
-}
+};
 
 await main();
 Script.complete();
