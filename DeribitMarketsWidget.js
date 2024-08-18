@@ -7,43 +7,17 @@ const WIDGET_SIZE = "large";
 
 const API_URL = "https://www.deribit.com/api/v2/";
 
-const FUTURES = [
-    {
-        "name": "BTCP",
-        "instrument": "BTC-PERPETUAL",
-        "volatility": "btcdvol_usdc",
-    },
-    {
-        "name": "ETHP",
-        "instrument": "ETH-PERPETUAL",
-        "volatility": "ethdvol_usdc",
-    },
-];
-
 // Widget Creation
 
-// https://stackoverflow.com/a/45322101
-const resolve = (path, obj) =>
-    path.split('.')
-        .reduce(
-            (prev, curr) =>
-                prev ? prev[curr] : null,
-            obj
-        );
-
-const parseJSON = async (url, values) => {
-    const response = await new Request(url).loadJSON();
-    const content = {};
-
-    for (const [name, path] of Object.entries(values)) {
-        content[name] = resolve(path, response);
-    }
-
-    return content;
-};
+const loadJSON = async (url, fn) => fn(await new Request(url).loadJSON());
 
 const createFutureStack = async (stack) => {
-    console.log(await parseJSON(API_URL + "public/ticker?instrument_name=BTC-PERPETUAL", {"price": "result.mark_price"}));
+    const futureNames =
+        await loadJSON(API_URL + `public/get_instruments?currency=${"BTC"}&expired=false&kind=future`,
+            response => response.result.map(instrument => instrument.instrument_name)
+        );
+
+    console.log(futureNames);
 };
 
 const createWidget = async () => {
