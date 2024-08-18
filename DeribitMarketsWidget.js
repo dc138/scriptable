@@ -9,15 +9,31 @@ const API_URL = "https://www.deribit.com/api/v2/";
 
 // Widget Creation
 
-const loadJSON = async (url, fn) => fn(await new Request(url).loadJSON());
-
 const createFutureStack = async (stack) => {
-    const futureNames =
-        await loadJSON(API_URL + `public/get_instruments?currency=${"BTC"}&expired=false&kind=future`,
-            response => response.result.map(instrument => instrument.instrument_name)
+    const names =
+        await new Request(API_URL + `public/get_instruments?currency=${"BTC"}&expired=false&kind=future`)
+            .loadJSON()
+            .then(response =>
+                response.result.map(instrument =>
+                    instrument.instrument_name
+                )
+            );
+
+    console.log(names);
+
+    const futures =
+        await Promise.all(
+            names.map(async name =>
+                await new Request(API_URL + `public/ticker?instrument_name=${name}`)
+                    .loadJSON()
+                    .then(response => ({
+                        name: name.split('-')[1],
+                        price: response.result.mark_price
+                    }))
+            )
         );
 
-    console.log(futureNames);
+    console.log(futures);
 };
 
 const createWidget = async () => {
