@@ -9,31 +9,44 @@ const API_URL = "https://www.deribit.com/api/v2/";
 
 // Widget Creation
 
-const createFutureStack = async (stack) => {
-    const names =
-        await new Request(API_URL + `public/get_instruments?currency=${"BTC"}&expired=false&kind=future`)
-            .loadJSON()
-            .then(response =>
-                response.result.map(instrument =>
-                    instrument.instrument_name
-                )
-            );
-
-    console.log(names);
-
-    const futures =
-        await Promise.all(
-            names.map(async name =>
-                await new Request(API_URL + `public/ticker?instrument_name=${name}`)
-                    .loadJSON()
-                    .then(response => ({
-                        name: name.split('-')[1],
-                        price: response.result.mark_price
-                    }))
+const fetchFutureInfo = async (currency) => {
+    const names = await new Request(API_URL + `public/get_instruments?currency=${currency}&expired=false&kind=future`)
+        .loadJSON()
+        .then((response) =>
+            response.result.map((instrument) =>
+                instrument.instrument_name
             )
         );
 
-    console.log(futures);
+    const futures = await Promise.all(
+        names.map(async (name) => (
+            {
+                ...await new Request(API_URL + `public/ticker?instrument_name=${name}`)
+                    .loadJSON()
+                    .then((response) => (
+                        {
+                            name: name.split('-')[1],
+                            price: response.result.mark_price,
+                            premium: (response.result.mark_price - response.result.index_price) / response.result.mark_price,
+                        }
+                    )),
+                ...await new Request(API_URL + `public/get_instrument?instrument_name=${name}`)
+                    .loadJSON()
+                    .then((response) => (
+                        {
+                            expiration: response.result.settlement_period == "perpetual" ? null : response.result.expiration_timestamp,
+                        }
+                    )),
+            }
+        ))
+    );
+
+    return futures;
+};
+
+const createFutureStack = async (stack) => {
+    const info = await fetchFutureInfo("BTC");
+    console.log(info);
 };
 
 const createWidget = async () => {
