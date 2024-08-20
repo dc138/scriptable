@@ -24,30 +24,32 @@ const fetchFutureInfo = async (currency) => {
 
     const futures = await Promise.all(
         names.map(async (name) => {
-            const info = {
-                ...await new Request(API_URL + `public/ticker?instrument_name=${name}`)
-                    .loadJSON()
-                    .then((response) => (
-                        {
-                            price: response.result.mark_price,
-                            premium: (response.result.mark_price - response.result.index_price) / response.result.index_price,
-                        }
-                    )),
-                ...await new Request(API_URL + `public/get_instrument?instrument_name=${name}`)
-                    .loadJSON()
-                    .then((response) => (
-                        {
-                            tenor: response.result.settlement_period == "perpetual" ? null : response.result.expiration_timestamp - platform_time,
-                        }
-                    )),
-            };
+            const ticker = await new Request(API_URL + `public/ticker?instrument_name=${name}`)
+                .loadJSON()
+                .then((response) => (
+                    {
+                        price: response.result.mark_price,
+                        premium: (response.result.mark_price - response.result.index_price) / response.result.index_price,
+                        change: response.result.stats.price_change,
+                    }
+                ));
+
+            const instrument = await new Request(API_URL + `public/get_instrument?instrument_name=${name}`)
+                .loadJSON()
+                .then((response) => (
+                    {
+                        tenor: response.result.settlement_period == "perpetual" ? null : response.result.expiration_timestamp - platform_time,
+                    }
+                ));
 
             return {
                 name,
-                ...info,
-                tenor_string: Math.floor(info.tenor / (1000 * 60 * 60 * 24)) + "d" + Math.floor(info.tenor % (1000 * 60 * 60 * 24) / (1000 * 60 * 60)) + "h",
-                premium_string: (info.premium * 100).toFixed(2) + "%",
-                apr_string: ((info.premium * 100 * 1000 * 60 * 60 * 24 * 365) / info.tenor).toFixed(2) + "%",
+                ...ticker,
+                ...instrument,
+                tenor_str: Math.floor(instrument.tenor / (1000 * 60 * 60 * 24)) + "d" + Math.floor(instrument.tenor % (1000 * 60 * 60 * 24) / (1000 * 60 * 60)) + "h",
+                premium_str: (ticker.premium * 100).toFixed(2) + "%",
+                apr_str: ((ticker.premium * 100 * 1000 * 60 * 60 * 24 * 365) / instrument.tenor).toFixed(2) + "%",
+                change_str: ticker.change.toFixed(2) + "%",
             }
         })
     );
