@@ -9,7 +9,7 @@ const API_URL = "https://www.deribit.com/api/v2/";
 
 // Widget Creation
 
-const fetchFutureInfo = async (currency) => {
+const fetchFuturesInfo = async (currency) => {
     const platform_time = await new Request(API_URL + "public/get_time")
         .loadJSON()
         .then((response) => response.result);
@@ -22,7 +22,7 @@ const fetchFutureInfo = async (currency) => {
             )
         );
 
-    const futures = await Promise.all(
+    return await Promise.all(
         names.map(async (name) => {
             const ticker = await new Request(API_URL + `public/ticker?instrument_name=${name}`)
                 .loadJSON()
@@ -38,28 +38,38 @@ const fetchFutureInfo = async (currency) => {
                 .loadJSON()
                 .then((response) => (
                     {
-                        tenor: response.result.settlement_period == "perpetual" ? null : response.result.expiration_timestamp - platform_time,
+                        tenor: response.result.settlement_period == "perpetual" ? undefined : response.result.expiration_timestamp - platform_time,
                     }
                 ));
 
             return {
-                name,
+                name: name.split("-").slice(-1)[0],
                 ...ticker,
                 ...instrument,
-                tenor_str: Math.floor(instrument.tenor / (1000 * 60 * 60 * 24)) + "d" + Math.floor(instrument.tenor % (1000 * 60 * 60 * 24) / (1000 * 60 * 60)) + "h",
-                premium_str: (ticker.premium * 100).toFixed(2) + "%",
-                apr_str: ((ticker.premium * 100 * 1000 * 60 * 60 * 24 * 365) / instrument.tenor).toFixed(2) + "%",
-                change_str: ticker.change.toFixed(2) + "%",
-            }
+            };
         })
     );
+};
 
-    return futures;
+const formatFutureInfo = (info) => {
+    const commonInfoFormat = {
+        name: info.name,
+        premium: (info.premium * 100).toFixed(2) + "%",
+        change: info.change.toFixed(2) + "%",
+    };
+
+    return info.tenor ? {
+        ...commonInfoFormat,
+        tenor: Math.floor(info.tenor / (1000 * 60 * 60 * 24)) + "d"
+            + Math.floor(info.tenor % (1000 * 60 * 60 * 24) / (1000 * 60 * 60)) + "h",
+        premium: (info.premium * 100).toFixed(2) + "%",
+    } : commonInfoFormat;
 };
 
 const createFutureStack = async (stack) => {
-    const info = await fetchFutureInfo("BTC");
-    console.log(info);
+    const btcFutures = (await fetchFuturesInfo("BTC")).map(formatFutureInfo);
+
+    console.log(btcFutures);
 };
 
 const createWidget = async () => {
