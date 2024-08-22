@@ -3,6 +3,12 @@
 const ERROR_FONT = Font.body();
 const ERROR_COLOR = Color.red();
 
+const TEXT_FONT = Font.regularMonospacedSystemFont(16);
+
+const UP_COLOR = Color.green();
+const DOWN_COLOR = Color.red();
+const SECONDARY_COLOR = new Color("999999");
+
 const WIDGET_SIZE = "large";
 
 const API_URL = "https://www.deribit.com/api/v2/";
@@ -100,46 +106,65 @@ const formatFutureInfo = (info) => {
     };
 };
 
+const addColumn = (content) => {
+    const colum = content.addStack();
+    colum.layoutVertically();
+    return colum;
+}
+
+const addText = (element, text, {color, font, opacity, lines, factor, align} = {}) => {
+    const textElement = element.addText(text);
+
+    if (color) textElement.textColor = color;
+    if (font) textElement.font = font;
+    if (opacity) textElement.textOpacity = opacity;
+    if (lines) textElement.lineLimit = lines;
+    if (factor) textElement.minimumScaleFactor = factor;
+
+    if (align == "left") textElement.leftAlignText();
+    else if (align == "center") textElement.centerAlignText();
+    else if (align == "right") textElement.rightAlignText();
+
+    return textElement;
+}
+
 const createFutureStack = async (stack, currency) => {
     const content = stack.addStack();
     content.layoutHorizontally();
 
-    const [colum3, colum0, colum1, colum2, colum4, colum5] = {
-        *[Symbol.iterator]() {
-            for (; ;) {
-                const colum = content.addStack();
-                colum.layoutVertically();
-                yield colum;
-            }
-        }
-    };
+    const column1 = addColumn(content);
+    const column2 = addColumn(content);
+    const column3 = addColumn(content);
+    const column4 = addColumn(content);
+    const column5 = addColumn(content);
+    const column6 = addColumn(content);
 
     const index = await fetchFuturesIndex(currency);
 
-    colum0.addText(currency);
-    colum1.addText(index.price);
-    colum2.addText(" ");
-    colum3.addText(index.change);
-    colum4.addText(" ");
-    colum5.addText(" ");
+    addText(column1, index.change, {font: TEXT_FONT, color: index.change[0] == "-" ? DOWN_COLOR : UP_COLOR});
+    addText(column2, currency, {font: TEXT_FONT});
+    addText(column3, index.price, {font: TEXT_FONT});
+    addText(column4, " ", {font: TEXT_FONT});
+    addText(column5, " ", {font: TEXT_FONT});
+    addText(column6, " ", {font: TEXT_FONT});
 
     const dated = (await fetchFuturesInfo(currency)).sort((a, b) => (a.tenor || -1) - (b.tenor || -1)).map(formatFutureInfo);
     const perpetual = dated.shift();
 
-    colum0.addText(perpetual.name);
-    colum1.addText(perpetual.difference);
-    colum2.addText(perpetual.premium);
-    colum3.addText(perpetual.change);
-    colum4.addText(" ");
-    colum5.addText(" ");
+    addText(column1, perpetual.change, {font: TEXT_FONT, color: perpetual.change[0] == "-" ? DOWN_COLOR : UP_COLOR});
+    addText(column2, perpetual.name, {font: TEXT_FONT});
+    addText(column3, perpetual.difference, {font: TEXT_FONT, color: perpetual.difference[0] == "-" ? DOWN_COLOR : UP_COLOR});
+    addText(column4, perpetual.premium, {font: TEXT_FONT, color: perpetual.premium[0] == "-" ? DOWN_COLOR : UP_COLOR});
+    addText(column5, " ", {font: TEXT_FONT});
+    addText(column6, " ", {font: TEXT_FONT});
 
     for (const future of dated) {
-        colum0.addText(future.name);
-        colum1.addText(future.difference);
-        colum2.addText(future.premium);
-        colum3.addText(future.change);
-        colum4.addText(future.apr);
-        colum5.addText(future.tenor);
+        addText(column1, future.change, {font: TEXT_FONT, color: future.change[0] == "-" ? DOWN_COLOR : UP_COLOR});
+        addText(column2, future.name, {font: TEXT_FONT});
+        addText(column3, future.difference, {font: TEXT_FONT, color: future.difference[0] == "-" ? DOWN_COLOR : UP_COLOR});
+        addText(column4, future.premium, {font: TEXT_FONT, color: future.premium[0] == "-" ? DOWN_COLOR : UP_COLOR});
+        addText(column5, future.apr, {font: TEXT_FONT, color: future.apr[0] == "-" ? DOWN_COLOR : UP_COLOR});
+        addText(column6, future.tenor, {font: TEXT_FONT, color: SECONDARY_COLOR});
     }
 
     console.log(index);
