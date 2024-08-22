@@ -9,6 +9,30 @@ const API_URL = "https://www.deribit.com/api/v2/";
 
 // Widget Creation
 
+const fetchFuturesIndex = async (currency) => {
+    const ticker = await new Request(API_URL + `public/ticker?instrument_name=${currency}_USDC`)
+        .loadJSON()
+        .then((response) => (
+            {
+                price: "$" + response.result.mark_price.toFixed(),
+                change: response.result.stats.price_change.toFixed(2) + "%",
+            }
+        ));
+
+    const volatility = await new Request(API_URL + `public/get_index_price?index_name=${currency.toLowerCase()}dvol_usdc`)
+        .loadJSON()
+        .then((response) => (
+            {
+                volatility: response.result.index_price.toFixed(2),
+            }
+        ));
+
+    return {
+        ...ticker,
+        ...volatility,
+    };
+}
+
 const fetchFuturesInfo = async (currency) => {
     const platform_time = await new Request(API_URL + "public/get_time")
         .loadJSON()
@@ -73,9 +97,11 @@ const formatFutureInfo = (info) => {
 };
 
 const createFutureStack = async (stack) => {
-    const btcFutures = (await fetchFuturesInfo("BTC")).map(formatFutureInfo);
+    const index = (await fetchFuturesIndex("BTC"));
+    const futures = (await fetchFuturesInfo("BTC")).map(formatFutureInfo);
 
-    console.log(btcFutures);
+    console.log(index);
+    console.log(futures);
 };
 
 const createWidget = async () => {
