@@ -31,6 +31,7 @@ const fetchFuturesInfo = async (currency) => {
                         price: response.result.mark_price,
                         premium: (response.result.mark_price - response.result.index_price) / response.result.index_price,
                         change: response.result.stats.price_change,
+                        funding: response.result.funding_8h,
                     }
                 ));
 
@@ -39,6 +40,7 @@ const fetchFuturesInfo = async (currency) => {
                 .then((response) => (
                     {
                         tenor: response.result.settlement_period == "perpetual" ? undefined : response.result.expiration_timestamp - platform_time,
+                        perpetual: response.result.settlement_period == "perpetual",
                     }
                 ));
 
@@ -53,17 +55,21 @@ const fetchFuturesInfo = async (currency) => {
 
 const formatFutureInfo = (info) => {
     const commonInfoFormat = {
-        name: info.name,
+        name: info.perpetual ? "PERP" : info.name,
+        price: "$" + info.price.toFixed(),
         premium: (info.premium * 100).toFixed(2) + "%",
         change: info.change.toFixed(2) + "%",
     };
 
-    return info.tenor ? {
+    return info.perpetual ? {
+        ...commonInfoFormat,
+        funding: (info.funding * 100).toFixed(4) + "%",
+    } : {
         ...commonInfoFormat,
         tenor: Math.floor(info.tenor / (1000 * 60 * 60 * 24)) + "d"
             + Math.floor(info.tenor % (1000 * 60 * 60 * 24) / (1000 * 60 * 60)) + "h",
-        premium: (info.premium * 100).toFixed(2) + "%",
-    } : commonInfoFormat;
+        apr: ((info.premium * 100 * 1000 * 60 * 60 * 24 * 365) / info.tenor).toFixed(2) + "%",
+    };
 };
 
 const createFutureStack = async (stack) => {
