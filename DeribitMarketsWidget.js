@@ -6,6 +6,7 @@ const ERROR_COLOR = Color.red();
 const WIDGET_SIZE = "large";
 
 const API_URL = "https://www.deribit.com/api/v2/";
+const CURRENCY = "BTC";
 
 // Widget Creation
 
@@ -14,8 +15,8 @@ const fetchFuturesIndex = async (currency) => {
         .loadJSON()
         .then((response) => (
             {
-                price: "$" + response.result.mark_price.toFixed(),
-                change: response.result.stats.price_change.toFixed(2) + "%",
+                price: response.result.mark_price.toFixed(),
+                change: response.result.stats.price_change.toFixed(2),
             }
         ));
 
@@ -52,7 +53,7 @@ const fetchFuturesInfo = async (currency) => {
                 .loadJSON()
                 .then((response) => (
                     {
-                        price: response.result.mark_price,
+                        difference: response.result.mark_price - response.result.index_price,
                         premium: (response.result.mark_price - response.result.index_price) / response.result.index_price,
                         change: response.result.stats.price_change,
                         funding: response.result.funding_8h,
@@ -64,7 +65,6 @@ const fetchFuturesInfo = async (currency) => {
                 .then((response) => (
                     {
                         tenor: response.result.settlement_period == "perpetual" ? undefined : response.result.expiration_timestamp - platform_time,
-                        perpetual: response.result.settlement_period == "perpetual",
                     }
                 ));
 
@@ -79,29 +79,72 @@ const fetchFuturesInfo = async (currency) => {
 
 const formatFutureInfo = (info) => {
     const commonInfoFormat = {
-        name: info.perpetual ? "PERP" : info.name,
-        price: "$" + info.price.toFixed(),
-        premium: (info.premium * 100).toFixed(2) + "%",
-        change: info.change.toFixed(2) + "%",
+        name: info.tenor ? info.name : "PERP",
+        difference: info.difference.toFixed(),
+        premium: (info.premium * 100).toFixed(2),
+        change: info.change.toFixed(2),
     };
 
-    return info.perpetual ? {
+    const formatTenor = (tenor) => {
+        const days = Math.floor(tenor / (1000 * 60 * 60 * 24));
+        return days < 1 ? Math.floor(tenor % (1000 * 60 * 60 * 24) / (1000 * 60 * 60)) + "h" : days + "d";
+    }
+
+    return info.tenor ? {
         ...commonInfoFormat,
-        funding: (info.funding * 100).toFixed(4) + "%",
+        tenor: formatTenor(info.tenor),
+        apr: ((info.premium * 100 * 1000 * 60 * 60 * 24 * 365) / info.tenor).toFixed(2),
     } : {
         ...commonInfoFormat,
-        tenor: Math.floor(info.tenor / (1000 * 60 * 60 * 24)) + "d"
-            + Math.floor(info.tenor % (1000 * 60 * 60 * 24) / (1000 * 60 * 60)) + "h",
-        apr: ((info.premium * 100 * 1000 * 60 * 60 * 24 * 365) / info.tenor).toFixed(2) + "%",
+        funding: (info.funding * 100).toFixed(4),
     };
 };
 
-const createFutureStack = async (stack) => {
-    const index = (await fetchFuturesIndex("BTC"));
-    const futures = (await fetchFuturesInfo("BTC")).map(formatFutureInfo);
+const createFutureStack = async (stack, currency) => {
+    const content = stack.addStack();
+    content.layoutHorizontally();
+
+    const [colum3, colum0, colum1, colum2, colum4, colum5] = {
+        *[Symbol.iterator]() {
+            for (; ;) {
+                const colum = content.addStack();
+                colum.layoutVertically();
+                yield colum;
+            }
+        }
+    };
+
+    const index = await fetchFuturesIndex(currency);
+
+    colum0.addText(currency);
+    colum1.addText(index.price);
+    colum2.addText(" ");
+    colum3.addText(index.change);
+    colum4.addText(" ");
+    colum5.addText(" ");
+
+    const dated = (await fetchFuturesInfo(currency)).sort((a, b) => (a.tenor || -1) - (b.tenor || -1)).map(formatFutureInfo);
+    const perpetual = dated.shift();
+
+    colum0.addText(perpetual.name);
+    colum1.addText(perpetual.difference);
+    colum2.addText(perpetual.premium);
+    colum3.addText(perpetual.change);
+    colum4.addText(" ");
+    colum5.addText(" ");
+
+    for (const future of dated) {
+        colum0.addText(future.name);
+        colum1.addText(future.difference);
+        colum2.addText(future.premium);
+        colum3.addText(future.change);
+        colum4.addText(future.apr);
+        colum5.addText(future.tenor);
+    }
 
     console.log(index);
-    console.log(futures);
+    console.log(perpetual);
+    console.log(dated);
 };
 
 const createWidget = async () => {
@@ -110,7 +153,7 @@ const createWidget = async () => {
     const content = widget.addStack();
     content.layoutVertically();
 
-    await createFutureStack(content);
+    await createFutureStack(content, CURRENCY);
 
     return widget;
 };
