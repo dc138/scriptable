@@ -3,7 +3,9 @@
 const ERROR_FONT = Font.body();
 const ERROR_COLOR = Color.red();
 
-const TEXT_FONT = Font.regularMonospacedSystemFont(16);
+const REGULAR_FONT = Font.regularMonospacedSystemFont(14);
+const BOLD_FONT = Font.boldMonospacedSystemFont(14);
+const THIN_FONT = Font.lightMonospacedSystemFont(14);
 
 const UP_COLOR = Color.green();
 const DOWN_COLOR = Color.red();
@@ -84,8 +86,21 @@ const fetchFuturesInfo = async (currency) => {
 };
 
 const formatFutureInfo = (info) => {
+    const formatName = (name, tenor) => {
+        const months = {
+            "JAN": 1, "FEB": 2, "MAR": 3,
+            "APR": 4, "MAY": 5, "JUN": 6,
+            "JUL": 7, "AUG": 8, "SEP": 9,
+            "OCT": 10, "NOV": 11, "DEC": 12,
+        };
+
+        return tenor ?
+            name.slice(0, -5) + "/" + months[name.slice(-5, -2)]
+            : "PERP";
+    }
+
     const commonInfoFormat = {
-        name: info.tenor ? info.name : "PERP",
+        name: formatName(info.name, info.tenor),
         difference: info.difference.toFixed(),
         premium: (info.premium * 100).toFixed(2),
         change: info.change.toFixed(2),
@@ -112,8 +127,19 @@ const addColumn = (content) => {
     return colum;
 }
 
-const addText = (element, text, {color, font, opacity, lines, factor, align} = {}) => {
-    const textElement = element.addText(text);
+const addText = (element, text, {color, font, opacity, lines, factor, spaceLeft, spaceRight} = {}) => {
+    let container = element;
+
+    if (spaceLeft !== undefined || spaceRight !== undefined) {
+        container = element.addStack();
+        container.layoutHorizontally();
+    }
+
+    if (spaceLeft !== undefined) {
+        container.addSpacer(spaceLeft);
+    }
+
+    const textElement = container.addText(text);
 
     if (color) textElement.textColor = color;
     if (font) textElement.font = font;
@@ -121,9 +147,9 @@ const addText = (element, text, {color, font, opacity, lines, factor, align} = {
     if (lines) textElement.lineLimit = lines;
     if (factor) textElement.minimumScaleFactor = factor;
 
-    if (align == "left") textElement.leftAlignText();
-    else if (align == "center") textElement.centerAlignText();
-    else if (align == "right") textElement.rightAlignText();
+    if (spaceRight !== undefined) {
+        container.addSpacer(spaceRight);
+    }
 
     return textElement;
 }
@@ -132,39 +158,56 @@ const createFutureStack = async (stack, currency) => {
     const content = stack.addStack();
     content.layoutHorizontally();
 
-    const column1 = addColumn(content);
+    content.addSpacer(null);
     const column2 = addColumn(content);
+    const column1 = addColumn(content);
+    content.addSpacer(null);
     const column3 = addColumn(content);
     const column4 = addColumn(content);
     const column5 = addColumn(content);
     const column6 = addColumn(content);
+    content.addSpacer(null);
+
+    addText(column1, "     d%", {font: BOLD_FONT});
+    addText(column2, " ", {font: BOLD_FONT});
+    addText(column3, "     Δ$", {font: BOLD_FONT});
+    addText(column4, "     Δ%", {font: BOLD_FONT});
+    addText(column5, "     y%", {font: BOLD_FONT});
+    addText(column6, " ", {font: BOLD_FONT});
+
+    column1.addSpacer(5);
+    column2.addSpacer(5);
+    column3.addSpacer(5);
+    column4.addSpacer(5);
+    column5.addSpacer(5);
+    column6.addSpacer(5);
 
     const index = await fetchFuturesIndex(currency);
 
-    addText(column1, index.change, {font: TEXT_FONT, color: index.change[0] == "-" ? DOWN_COLOR : UP_COLOR});
-    addText(column2, currency, {font: TEXT_FONT});
-    addText(column3, index.price, {font: TEXT_FONT});
-    addText(column4, " ", {font: TEXT_FONT});
-    addText(column5, " ", {font: TEXT_FONT});
-    addText(column6, " ", {font: TEXT_FONT});
+    addText(column1, index.change, {font: REGULAR_FONT, color: index.change[0] == "-" ? DOWN_COLOR : UP_COLOR, spaceLeft: null});
+    addText(column2, currency, {font: BOLD_FONT});
+    addText(column3, index.price, {font: REGULAR_FONT, spaceLeft: 1});
+    addText(column4, " ", {font: REGULAR_FONT});
+    addText(column5, " ", {font: REGULAR_FONT});
+    addText(column6, " ", {font: REGULAR_FONT});
 
     const dated = (await fetchFuturesInfo(currency)).sort((a, b) => (a.tenor || -1) - (b.tenor || -1)).map(formatFutureInfo);
     const perpetual = dated.shift();
 
-    addText(column1, perpetual.change, {font: TEXT_FONT, color: perpetual.change[0] == "-" ? DOWN_COLOR : UP_COLOR});
-    addText(column2, perpetual.name, {font: TEXT_FONT});
-    addText(column3, perpetual.difference, {font: TEXT_FONT, color: perpetual.difference[0] == "-" ? DOWN_COLOR : UP_COLOR});
-    addText(column4, perpetual.premium, {font: TEXT_FONT, color: perpetual.premium[0] == "-" ? DOWN_COLOR : UP_COLOR});
-    addText(column5, " ", {font: TEXT_FONT});
-    addText(column6, " ", {font: TEXT_FONT});
+    addText(column1, perpetual.change, {font: REGULAR_FONT, color: perpetual.change[0] == "-" ? DOWN_COLOR : UP_COLOR, spaceLeft: null});
+    addText(column2, perpetual.name, {font: BOLD_FONT});
+    addText(column3, perpetual.difference, {font: REGULAR_FONT, color: perpetual.difference[0] == "-" ? DOWN_COLOR : UP_COLOR, spaceLeft: null});
+    addText(column4, perpetual.premium, {font: REGULAR_FONT, color: perpetual.premium[0] == "-" ? DOWN_COLOR : UP_COLOR, spaceLeft: null});
+    addText(column5, " ", {font: REGULAR_FONT});
+    addText(column6, " ", {font: REGULAR_FONT});
 
     for (const future of dated) {
-        addText(column1, future.change, {font: TEXT_FONT, color: future.change[0] == "-" ? DOWN_COLOR : UP_COLOR});
-        addText(column2, future.name, {font: TEXT_FONT});
-        addText(column3, future.difference, {font: TEXT_FONT, color: future.difference[0] == "-" ? DOWN_COLOR : UP_COLOR});
-        addText(column4, future.premium, {font: TEXT_FONT, color: future.premium[0] == "-" ? DOWN_COLOR : UP_COLOR});
-        addText(column5, future.apr, {font: TEXT_FONT, color: future.apr[0] == "-" ? DOWN_COLOR : UP_COLOR});
-        addText(column6, future.tenor, {font: TEXT_FONT, color: SECONDARY_COLOR});
+        addText(column1, future.change, {font: REGULAR_FONT, color: future.change[0] == "-" ? DOWN_COLOR : UP_COLOR, spaceLeft: null});
+        addText(column2, future.name, {font: BOLD_FONT});
+        addText(column3, future.difference, {font: REGULAR_FONT, color: future.difference[0] == "-" ? DOWN_COLOR : UP_COLOR, spaceLeft: null});
+        addText(column4, future.premium, {font: REGULAR_FONT, color: future.premium[0] == "-" ? DOWN_COLOR : UP_COLOR, spaceLeft: null});
+        addText(column5, future.apr, {font: REGULAR_FONT, color: future.apr[0] == "-" ? DOWN_COLOR : UP_COLOR, spaceLeft: null});
+        addText(column6, future.tenor, {font: THIN_FONT, color: SECONDARY_COLOR, spaceLeft: null});
     }
 
     console.log(index);
