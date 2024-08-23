@@ -16,6 +16,7 @@ const WIDGET_SIZE = "large";
 
 const API_URL = "https://www.deribit.com/api/v2/";
 const CURRENCY = "BTC";
+const LOGO = "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";
 
 // Widget Creation
 
@@ -173,7 +174,22 @@ const addLine = (stack, color, before, after) => {
 }
 
 const createIndexTable = async (stack, currency) => {
-    addText(stack, "Index", {font: TITLE_FONT});
+    const title = stack.addStack();
+    title.layoutHorizontally();
+    title.bottomAlignContent();
+
+    addText(title, "Index", {font: TITLE_FONT});
+    title.addSpacer();
+    title.addSpacer(null);
+
+    const logo = title.addStack();
+    logo.layoutVertically();
+
+    const logoData = Image.fromData(Data.fromBase64String(LOGO));
+    const logoImage = logo.addImage(logoData);
+    logoImage.imageSize = new Size(32, 32);
+    logo.addSpacer(null);
+
     addLine(stack, NEUTRAL2_COLOR, 3, 10);
 
     const index = await fetchFuturesIndex(currency);
@@ -246,6 +262,7 @@ const createWidget = async () => {
     await createIndexTable(content, CURRENCY);
     content.addSpacer(15);
     await createFutureTable(content, CURRENCY);
+    content.addSpacer(null);
 
     return widget;
 };
