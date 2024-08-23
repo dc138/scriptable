@@ -2,7 +2,7 @@
 
 This repository contains a collection of my personal scriptable.app scripts:
 
-1. [Deribit Markers Widget](https://github.com/DarthChungo/scriptable/new/main?filename=README.md#deribit-futures-widget)
+1. [Deribit Markers Widget](https://github.com/DarthChungo/scriptable/tree/main?tab=readme-ov-file#deribit-futures-widget)
 
 ## Deribit Futures Widget
 
