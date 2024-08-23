@@ -4,12 +4,13 @@ const ERROR_FONT = Font.body();
 const ERROR_COLOR = Color.red();
 
 const REGULAR_FONT = Font.regularMonospacedSystemFont(14);
-const BOLD_FONT = Font.boldMonospacedSystemFont(14);
+const HEADER_FONT = Font.semiboldMonospacedSystemFont(14);
 const THIN_FONT = Font.lightMonospacedSystemFont(14);
 
 const UP_COLOR = Color.green();
 const DOWN_COLOR = Color.red();
-const SECONDARY_COLOR = new Color("999999");
+const NEUTRAL_COLOR = new Color("a6a6a6");
+const SECONDARY_COLOR = new Color("666666");
 
 const WIDGET_SIZE = "large";
 
@@ -155,6 +156,21 @@ const addText = (element, text, {color, font, opacity, lines, factor, spaceLeft,
 }
 
 const createFutureStack = async (stack, currency) => {
+    addText(stack, currency + " Futures", {font: Font.boldMonospacedSystemFont(18)});
+
+    const context = new DrawContext();
+    context.size = new Size(200, 1);
+    context.respectScreenScale = true;
+    context.opaque = false;
+
+    context.setFillColor(SECONDARY_COLOR);
+    context.fillRect(new Rect(0, 0, 197, 1));
+
+    const image = context.getImage();
+    stack.addSpacer(3);
+    stack.addImage(image);
+    stack.addSpacer(10);
+
     const content = stack.addStack();
     content.layoutHorizontally();
 
@@ -168,12 +184,12 @@ const createFutureStack = async (stack, currency) => {
     const column6 = addColumn(content);
     content.addSpacer(null);
 
-    addText(column1, "     d%", {font: BOLD_FONT});
-    addText(column2, " ", {font: BOLD_FONT});
-    addText(column3, "     Δ$", {font: BOLD_FONT});
-    addText(column4, "     Δ%", {font: BOLD_FONT});
-    addText(column5, "     y%", {font: BOLD_FONT});
-    addText(column6, " ", {font: BOLD_FONT});
+    addText(column1, "     d%", {font: HEADER_FONT});
+    addText(column2, " ", {font: HEADER_FONT});
+    addText(column3, "     Δ$", {font: HEADER_FONT});
+    addText(column4, "     Δ%", {font: HEADER_FONT});
+    addText(column5, "     y%", {font: HEADER_FONT});
+    addText(column6, " ", {font: HEADER_FONT});
 
     column1.addSpacer(5);
     column2.addSpacer(5);
@@ -185,7 +201,7 @@ const createFutureStack = async (stack, currency) => {
     const index = await fetchFuturesIndex(currency);
 
     addText(column1, index.change, {font: REGULAR_FONT, color: index.change[0] == "-" ? DOWN_COLOR : UP_COLOR, spaceLeft: null});
-    addText(column2, currency, {font: BOLD_FONT});
+    addText(column2, currency, {font: HEADER_FONT});
     addText(column3, index.price, {font: REGULAR_FONT, spaceLeft: 1});
     addText(column4, " ", {font: REGULAR_FONT});
     addText(column5, " ", {font: REGULAR_FONT});
@@ -195,7 +211,7 @@ const createFutureStack = async (stack, currency) => {
     const perpetual = dated.shift();
 
     addText(column1, perpetual.change, {font: REGULAR_FONT, color: perpetual.change[0] == "-" ? DOWN_COLOR : UP_COLOR, spaceLeft: null});
-    addText(column2, perpetual.name, {font: BOLD_FONT});
+    addText(column2, perpetual.name, {font: HEADER_FONT});
     addText(column3, perpetual.difference, {font: REGULAR_FONT, color: perpetual.difference[0] == "-" ? DOWN_COLOR : UP_COLOR, spaceLeft: null});
     addText(column4, perpetual.premium, {font: REGULAR_FONT, color: perpetual.premium[0] == "-" ? DOWN_COLOR : UP_COLOR, spaceLeft: null});
     addText(column5, " ", {font: REGULAR_FONT});
@@ -203,11 +219,11 @@ const createFutureStack = async (stack, currency) => {
 
     for (const future of dated) {
         addText(column1, future.change, {font: REGULAR_FONT, color: future.change[0] == "-" ? DOWN_COLOR : UP_COLOR, spaceLeft: null});
-        addText(column2, future.name, {font: BOLD_FONT});
+        addText(column2, future.name, {font: HEADER_FONT});
         addText(column3, future.difference, {font: REGULAR_FONT, color: future.difference[0] == "-" ? DOWN_COLOR : UP_COLOR, spaceLeft: null});
         addText(column4, future.premium, {font: REGULAR_FONT, color: future.premium[0] == "-" ? DOWN_COLOR : UP_COLOR, spaceLeft: null});
         addText(column5, future.apr, {font: REGULAR_FONT, color: future.apr[0] == "-" ? DOWN_COLOR : UP_COLOR, spaceLeft: null});
-        addText(column6, future.tenor, {font: THIN_FONT, color: SECONDARY_COLOR, spaceLeft: null});
+        addText(column6, future.tenor, {font: THIN_FONT, color: NEUTRAL_COLOR, spaceLeft: null});
     }
 
     console.log(index);
