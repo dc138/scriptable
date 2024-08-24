@@ -15,15 +15,19 @@ const WIDGET_SIZE = "large";
 const API_URL = "https://www.deribit.com/api/v2/";
 const CURRENCY = args.widgetParameter || "BTC";
 
-const LOGO = CURRENCY == "BTC" ?
-    // Bitcoin 48x48 base64 encoded png logo
-    "iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAMAAABg3Am1AAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAKFUExURQAAAPeTGviTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGfeYJfeVH/eSGPeWH/zTov3gvPrAeveWIfeUHfeSF/ifNP7x4f////3jw/eWIPigNvzWqPvIivmoRviaKveRF/eRFfmxWf/8+PvLkfeQFPq1Yv/+/vvGhviiOf3kxfzbs/vDgfmtUfibLPvJi//9+vmzX/eQE/vMkvmwWPeRFvq2ZP/69f7t2f706P737vibK/3iwv7w3/q7b/7y4//8+v/+/f706f3oz//58/3gvfigNfq3Zv7u2/716vzRnvmrTPeUHPvOlvvOmPicLfzasf727fmvVvmrTfvEgv/8+fzctPeSGfidMP3nzPq9cvvDf/muUvzSn/vHiP3hv/q6bf/+/P3myveYJP747/mqS/eUG/vQmv7u2v3lyfvOl/q8cPmyXfq2Y//69Pq8cvmtUveaKPvDgP3p0f/79vvGh/737fmpSPicLvmuVPvJjf3q0v/58vvJjPeXI/idL/3nzfeZJ/vEg/737/vKjvmtUPzSoPvEgf705/ikPfmxWvihN/q7bvimQf/9+/mzXf3q0/7z5v/7+P727PilQPeQFfmwV/748PmvVfeYJvmoR/ijPP3lyP7x4v3iwP726/vPmP748f3euP/48frCffieMv7v3veXIv716f7w4P3hvv7r1f7x4P3r1PzXqf/79/vNlPvIi/eVHfibKvifM////vvKj/myW/rAefvQm/3hwPq5a/zYrPzQnFa2groAAAAjdFJOUwAAAAw1baPM5/f+bgEncrvp/LwtkOIVfOM6vwJe5ATz9nHylPAAvgAAAAFiS0dEMdnbHXIAAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfoCBcQBjJJ1kLeAAADX0lEQVRIx5VW+SMUURyfbbFHdq1rWbdm7ajs8KxiJBQqlSGUKyW1RUpSqVBSulOh0qEDHXTp0H3f9338Pb03LO/NbGo/v+zse9/P+57v+30UNQwZgtzJ2UWhVKnVKqXCZbSTXFik7AJuuGq0bjp3egjuOg+txtU+Ax3k6eVNS+Dt5WlPCVzS+/jSduHro5cw4ILBj/4r/AwihkzmHxBIj4DAAH+cIZMFaYPpERGsDRpmwPO1ISIBo5gRoh3SAc0LkJwfZmLEOgJsfkB/JfaHjx03PoI2szgr0DBAgPH0ExvDREaBaEvMhImxuGl+esSAenxweXOcmePiJyWAyYlJyWAKi+/5IKNgfvF8MVNTUtOmTZ8B0mfOmg0SMjgig56I4OqFr/GZAICsOdkgJyN3LpgXSbru5QoJGqJ+2Lz8AoBQWDS/GCwIZ8m60kCCloyPZWHJImBD6eIlVkKHVkbJPUQRZeKXIgXZxQIlZ1kZzvCQU046cQ7M5VBwecWKlSmViLIqt2p4T+dEObuL5KtWI5Oqw3gubE0pYqzFVLg7Uy5iBdy6LChVAzNm5NYjwgYLtutCKSSENCiUvJFHMU6qhd919Vi6FZTSrgubNvMQDVuQhnIztqukVBIXGqFQ+tZtTdt31OxE8dqF50JFqcUW7c4aTEJ6rfBTvgcvQLWUsBeduq+xeTB1+3OJzKklJgkuHDjY0tp2qBB+HT7STlw+ldjpqqPIhWPHGY4tO9GB4nWygSacJsLKcvGnkAunhVvEnEE6OrtwmxRk4lq7z6JCSj7HC/TzOfDPhR6eSBxWGlUtvQUXL0GZy1cSGSNtvNqHPK/s5onSwIqPbRoM6LW26zE3LPU3o9Gfzn6GKD68vPNuFQ3EHjTfrr5Td1f4TDVhFrnJyQvU3lVyLwoQuN/HkheIuKJGhjc/AB3lvek2+YePrOIrSjYB5vETEP009hl4/uLlq6jXb/qsRnETINsMV/EWvEvsqQTvP3z8FBlnZaVthmxksJQ+ZyZ+AZVfeSPDiFqy0MhErdLY/+17jOkHyI9hpGNFb2uueDNmYJpMP3/9tkiHimGoe0vaPdsQIR0pQ+0eDZTQEPofwAaKMLJCxzgwshwfio6PXccHu+NPh0GKJvS/HycQoyTPH2fp8+cPWPpcMkWryPQAAAAldEVYdGRhdGU6Y3JlYXRlADIwMjQtMDgtMjNUMTU6NDA6MzIrMDA6MDCNgftvAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDI0LTA4LTIzVDE1OjQwOjMyKzAwOjAw/NxD0wAAACh0RVh0ZGF0ZTp0aW1lc3RhbXAAMjAyNC0wOC0yM1QxNjowNjo0OSswMDowMKMGUOQAAAAZdEVYdFNvZnR3YXJlAHd3dy5pbmtzY2FwZS5vcmeb7jwaAAAAAElFTkSuQmCC"
-    // Etherium 48x48 base64 encoded png logo
-    : "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";
+// Bitcoin and Etherium base64 encoded 48x48 png logos
+const LOGO = {
+    "BTC": "iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAMAAABg3Am1AAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAKFUExURQAAAPeTGviTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGfeYJfeVH/eSGPeWH/zTov3gvPrAeveWIfeUHfeSF/ifNP7x4f////3jw/eWIPigNvzWqPvIivmoRviaKveRF/eRFfmxWf/8+PvLkfeQFPq1Yv/+/vvGhviiOf3kxfzbs/vDgfmtUfibLPvJi//9+vmzX/eQE/vMkvmwWPeRFvq2ZP/69f7t2f706P737vibK/3iwv7w3/q7b/7y4//8+v/+/f706f3oz//58/3gvfigNfq3Zv7u2/716vzRnvmrTPeUHPvOlvvOmPicLfzasf727fmvVvmrTfvEgv/8+fzctPeSGfidMP3nzPq9cvvDf/muUvzSn/vHiP3hv/q6bf/+/P3myveYJP747/mqS/eUG/vQmv7u2v3lyfvOl/q8cPmyXfq2Y//69Pq8cvmtUveaKPvDgP3p0f/79vvGh/737fmpSPicLvmuVPvJjf3q0v/58vvJjPeXI/idL/3nzfeZJ/vEg/737/vKjvmtUPzSoPvEgf705/ikPfmxWvihN/q7bvimQf/9+/mzXf3q0/7z5v/7+P727PilQPeQFfmwV/748PmvVfeYJvmoR/ijPP3lyP7x4v3iwP726/vPmP748f3euP/48frCffieMv7v3veXIv716f7w4P3hvv7r1f7x4P3r1PzXqf/79/vNlPvIi/eVHfibKvifM////vvKj/myW/rAefvQm/3hwPq5a/zYrPzQnFa2groAAAAjdFJOUwAAAAw1baPM5/f+bgEncrvp/LwtkOIVfOM6vwJe5ATz9nHylPAAvgAAAAFiS0dEMdnbHXIAAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfoCBcQBjJJ1kLeAAADX0lEQVRIx5VW+SMUURyfbbFHdq1rWbdm7ajs8KxiJBQqlSGUKyW1RUpSqVBSulOh0qEDHXTp0H3f9338Pb03LO/NbGo/v+zse9/P+57v+30UNQwZgtzJ2UWhVKnVKqXCZbSTXFik7AJuuGq0bjp3egjuOg+txtU+Ax3k6eVNS+Dt5WlPCVzS+/jSduHro5cw4ILBj/4r/AwihkzmHxBIj4DAAH+cIZMFaYPpERGsDRpmwPO1ISIBo5gRoh3SAc0LkJwfZmLEOgJsfkB/JfaHjx03PoI2szgr0DBAgPH0ExvDREaBaEvMhImxuGl+esSAenxweXOcmePiJyWAyYlJyWAKi+/5IKNgfvF8MVNTUtOmTZ8B0mfOmg0SMjgig56I4OqFr/GZAICsOdkgJyN3LpgXSbru5QoJGqJ+2Lz8AoBQWDS/GCwIZ8m60kCCloyPZWHJImBD6eIlVkKHVkbJPUQRZeKXIgXZxQIlZ1kZzvCQU046cQ7M5VBwecWKlSmViLIqt2p4T+dEObuL5KtWI5Oqw3gubE0pYqzFVLg7Uy5iBdy6LChVAzNm5NYjwgYLtutCKSSENCiUvJFHMU6qhd919Vi6FZTSrgubNvMQDVuQhnIztqukVBIXGqFQ+tZtTdt31OxE8dqF50JFqcUW7c4aTEJ6rfBTvgcvQLWUsBeduq+xeTB1+3OJzKklJgkuHDjY0tp2qBB+HT7STlw+ldjpqqPIhWPHGY4tO9GB4nWygSacJsLKcvGnkAunhVvEnEE6OrtwmxRk4lq7z6JCSj7HC/TzOfDPhR6eSBxWGlUtvQUXL0GZy1cSGSNtvNqHPK/s5onSwIqPbRoM6LW26zE3LPU3o9Gfzn6GKD68vPNuFQ3EHjTfrr5Td1f4TDVhFrnJyQvU3lVyLwoQuN/HkheIuKJGhjc/AB3lvek2+YePrOIrSjYB5vETEP009hl4/uLlq6jXb/qsRnETINsMV/EWvEvsqQTvP3z8FBlnZaVthmxksJQ+ZyZ+AZVfeSPDiFqy0MhErdLY/+17jOkHyI9hpGNFb2uueDNmYJpMP3/9tkiHimGoe0vaPdsQIR0pQ+0eDZTQEPofwAaKMLJCxzgwshwfio6PXccHu+NPh0GKJvS/HycQoyTPH2fp8+cPWPpcMkWryPQAAAAldEVYdGRhdGU6Y3JlYXRlADIwMjQtMDgtMjNUMTU6NDA6MzIrMDA6MDCNgftvAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDI0LTA4LTIzVDE1OjQwOjMyKzAwOjAw/NxD0wAAACh0RVh0ZGF0ZTp0aW1lc3RhbXAAMjAyNC0wOC0yM1QxNjowNjo0OSswMDowMKMGUOQAAAAZdEVYdFNvZnR3YXJlAHd3dy5pbmtzY2FwZS5vcmeb7jwaAAAAAElFTkSuQmCC",
+    "ETH": "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",
+}[CURRENCY];
 
 // Widget Creation
 
-const fetchFuturesIndex = async (currency) => {
+const platform_time = await new Request(API_URL + "public/get_time")
+    .loadJSON()
+    .then((response) => response.result);
+
+const fetchIndexInfo = async (currency) => {
     const ticker = await new Request(API_URL + `public/ticker?instrument_name=${currency}_USDC`)
         .loadJSON()
         .then((response) => (
@@ -41,17 +45,30 @@ const fetchFuturesIndex = async (currency) => {
             }
         ));
 
+    const start = platform_time - (24 * 60 * 60 * 1000);
+    const end = platform_time;
+
+    const prices = await new Request(API_URL + `public/get_tradingview_chart_data?instrument_name=${currency}_USDC&resolution=5&start_timestamp=${start}&end_timestamp=${end}`)
+        .loadJSON()
+        .then((response) => (
+            {
+                prices: {
+                    close: response.result.close,
+                    high: response.result.high,
+                    low: response.result.low,
+                    open: response.result.open,
+                }
+            }
+        ));
+
     return {
         ...ticker,
         ...volatility,
+        ...prices,
     };
 }
 
 const fetchFuturesInfo = async (currency) => {
-    const platform_time = await new Request(API_URL + "public/get_time")
-        .loadJSON()
-        .then((response) => response.result);
-
     const names = await new Request(API_URL + `public/get_instruments?currency=${currency}&expired=false&kind=future`)
         .loadJSON()
         .then((response) =>
@@ -187,14 +204,30 @@ const addLine = (stack, color, before = 0, after = 0, width = 200) => {
     return image;
 }
 
-const addPriceGraph = async (stack, width = 200, height = 100) => {
+const addPriceGraph = async (stack, prices, ratio = .5) => {
+    const width = (24 * 60) / 5;
+    const height = width * ratio;
+
     const context = new DrawContext();
     context.size = new Size(width, height);
     context.respectScreenScale = true;
     context.opaque = false;
 
-    context.setFillColor(Color.red());
-    context.fillRect(new Rect(0, 0, width, height));
+    const min = Math.min(...prices.close);
+    const max = Math.max(...prices.close);
+
+    const heights = prices.close.map((price) => (price - min) / (max - min));
+    const points = heights.map((value, i) => new Point(i, (1 - value) * height));
+
+    console.log(points);
+
+    const path = new Path();
+    path.addLines(points);
+
+    context.setStrokeColor(Color.green());
+    context.setLineWidth(2);
+    context.addPath(path);
+    context.strokePath();
 
     const image = context.getImage();
     stack.addImage(image);
@@ -222,7 +255,7 @@ const createIndexTable = async (stack, currency) => {
     const logoImage = logo.addImage(logoData);
     logoImage.imageSize = new Size(32, 32);
 
-    const index = await fetchFuturesIndex(currency);
+    const index = await fetchIndexInfo(currency);
 
     const content = stack.addStack();
     content.layoutHorizontally();
@@ -249,7 +282,7 @@ const createIndexTable = async (stack, currency) => {
     picture.layoutVertically();
 
     picture.addSpacer(null);
-    addPriceGraph(picture);
+    addPriceGraph(picture, index.prices);
     picture.addSpacer(null);
 }
 
@@ -342,8 +375,6 @@ const main = async () => {
     } else {
         await widget.presentLarge();
     }
-
-    console.log(args.widgetParameter);
 };
 
 await main();
