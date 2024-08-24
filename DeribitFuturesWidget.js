@@ -1,12 +1,10 @@
 // Config
 
-const ERROR_FONT = Font.body();
-const ERROR_COLOR = Color.red();
-
 const TITLE_FONT = Font.boldMonospacedSystemFont(18);
 const REGULAR_FONT = Font.regularMonospacedSystemFont(14);
 const HEADER_FONT = Font.mediumMonospacedSystemFont(14);
 
+const ERROR_COLOR = Color.red();
 const UP_COLOR = Color.green();
 const DOWN_COLOR = Color.red();
 const NEUTRAL1_COLOR = new Color("a6a6a6");
@@ -134,7 +132,7 @@ const addColumn = (content) => {
     return colum;
 }
 
-const addText = (element, text, {color, font, opacity, lines, factor, spaceLeft, spaceRight} = {}) => {
+const addText = (element, text, {color, font, opacity, lines, factor, spaceLeft, spaceRight, align} = {}) => {
     let container = element;
 
     if (spaceLeft !== undefined || spaceRight !== undefined) {
@@ -153,6 +151,17 @@ const addText = (element, text, {color, font, opacity, lines, factor, spaceLeft,
     if (opacity) textElement.textOpacity = opacity;
     if (lines) textElement.lineLimit = lines;
     if (factor) textElement.minimumScaleFactor = factor;
+
+    if (align == "left") {
+        textElement.leftAlignText();
+
+    } else if (align == "center") {
+        textElement.centerAlignText();
+
+    } else if (align == "right") {
+        textElement.rightAlignText();
+    }
+
 
     if (spaceRight !== undefined) {
         container.addSpacer(spaceRight);
@@ -259,6 +268,10 @@ const createFutureTable = async (stack, currency) => {
 };
 
 const createWidget = async () => {
+    if (!config.runsInApp && config.widgetFamily != WIDGET_SIZE) {
+        throw new Error("Invalid widget size.");
+    }
+
     const widget = new ListWidget();
 
     const content = widget.addStack();
@@ -272,14 +285,9 @@ const createWidget = async () => {
     return widget;
 };
 
-const createErrorWidget = async () => {
+const createErrorWidget = (text) => {
     const widget = new ListWidget();
-    const text = widget.addText("Invalid widget size.");
-
-    text.textColor = ERROR_COLOR;
-    text.font = ERROR_FONT;
-    text.minimumScaleFactor = 0.5;
-    text.centerAlignText();
+    addText(widget, text, {color: ERROR_COLOR, font: HEADER_FONT, factor: .5, align: "center"});
 
     return widget;
 };
@@ -287,10 +295,14 @@ const createErrorWidget = async () => {
 // Script entry point
 
 const main = async () => {
-    const widget =
-        config.runsInApp || config.widgetFamily == WIDGET_SIZE ?
-            await createWidget()
-            : await createErrorWidget();
+    let widget = null;
+
+    try {
+        widget = await createWidget();
+
+    } catch ({name, message}) {
+        widget = createErrorWidget(`${name}: ${message}`);
+    }
 
     if (config.runsInWidget) {
         Script.setWidget(widget);
