@@ -170,14 +170,14 @@ const addText = (element, text, {color, font, opacity, lines, factor, spaceLeft,
     return textElement;
 }
 
-const addLine = (stack, color, before, after) => {
+const addLine = (stack, color, before = 0, after = 0, width = 200) => {
     const context = new DrawContext();
-    context.size = new Size(200, 1);
+    context.size = new Size(width, 1);
     context.respectScreenScale = true;
     context.opaque = false;
 
     context.setFillColor(color);
-    context.fillRect(new Rect(0, 0, 200, 1));
+    context.fillRect(new Rect(0, 0, width, 1));
 
     const image = context.getImage();
     stack.addSpacer(before);
@@ -187,39 +187,73 @@ const addLine = (stack, color, before, after) => {
     return image;
 }
 
+const addPriceGraph = async (stack, width = 200, height = 100) => {
+    const context = new DrawContext();
+    context.size = new Size(width, height);
+    context.respectScreenScale = true;
+    context.opaque = false;
+
+    context.setFillColor(Color.red());
+    context.fillRect(new Rect(0, 0, width, height));
+
+    const image = context.getImage();
+    stack.addImage(image);
+
+    return image;
+};
+
 const createIndexTable = async (stack, currency) => {
-    const title = stack.addStack();
-    title.layoutHorizontally();
-    title.bottomAlignContent();
+    const heading = stack.addStack();
+    heading.layoutHorizontally();
+    heading.bottomAlignContent();
+
+    const title = heading.addStack();
+    title.layoutVertically();
 
     addText(title, "Index", {font: TITLE_FONT});
-    title.addSpacer();
-    title.addSpacer(null);
+    addLine(title, NEUTRAL2_COLOR, 3, 3, 180);
 
-    const logo = title.addStack();
+    heading.addSpacer(null);
+
+    const logo = heading.addStack();
     logo.layoutVertically();
 
     const logoData = Image.fromData(Data.fromBase64String(LOGO));
     const logoImage = logo.addImage(logoData);
     logoImage.imageSize = new Size(32, 32);
-    logo.addSpacer(null);
-
-    addLine(stack, NEUTRAL2_COLOR, 3, 10);
 
     const index = await fetchFuturesIndex(currency);
 
-    const list = stack.addStack();
-    list.layoutHorizontally();
+    const content = stack.addStack();
+    content.layoutHorizontally();
 
-    addText(list, "$" + index.price, {font: HEADER_FONT});
-    list.addSpacer(Math.max(1, 60 - index.price.length * 10));
-    addText(list, index.change, {font: REGULAR_FONT, color: index.change[0] == "-" ? DOWN_COLOR : UP_COLOR});
-    list.addSpacer(null);
-    addText(list, index.volatility + "dv", {font: REGULAR_FONT, color: NEUTRAL1_COLOR});
+    const data = content.addStack();
+    data.layoutVertically();
+
+    data.addSpacer(null);
+    const price = data.addStack();
+    price.layoutHorizontally();
+
+    addText(price, "$" + index.price, {font: HEADER_FONT, spaceRight: Math.max(1, 60 - index.price.length * 10)});
+    addText(price, index.change, {font: REGULAR_FONT, color: index.change[0] == "-" ? DOWN_COLOR : UP_COLOR});
+
+    addText(data, index.volatility + "dv", {font: REGULAR_FONT, color: NEUTRAL1_COLOR, spaceLeft: 20});
+    data.addSpacer(null);
+    addText(data, "Futures", {font: TITLE_FONT});
+
+    const graph = content.addStack();
+    content.layoutHorizontally();
+
+    graph.addSpacer(null);
+    const picture = graph.addStack();
+    picture.layoutVertically();
+
+    picture.addSpacer(null);
+    addPriceGraph(picture);
+    picture.addSpacer(null);
 }
 
 const createFutureTable = async (stack, currency) => {
-    addText(stack, "Futures", {font: TITLE_FONT});
     addLine(stack, NEUTRAL2_COLOR, 3, 10);
 
     const table = stack.addStack();
@@ -278,9 +312,7 @@ const createWidget = async () => {
     content.layoutVertically();
 
     await createIndexTable(content, CURRENCY);
-    content.addSpacer(15);
     await createFutureTable(content, CURRENCY);
-    content.addSpacer(null);
 
     return widget;
 };
