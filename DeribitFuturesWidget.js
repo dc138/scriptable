@@ -4,15 +4,15 @@ const TITLE_FONT = Font.boldMonospacedSystemFont(18);
 const HEADER_FONT = Font.mediumMonospacedSystemFont(14);
 const REGULAR_FONT = Font.regularMonospacedSystemFont(14);
 
-const BG_COLOR = new Color("1c1c1e");
-const FG_COLOR = new Color("ffffff");
-const NEUTRAL1_COLOR = new Color("a6a6a6");
-const NEUTRAL2_COLOR = new Color("666666");
-const ERROR_COLOR = new Color("ff4539");
-const UP1_COLOR = new Color("2ed159");
-const UP2_COLOR = new Color("31703d");
-const DOWN1_COLOR = new Color("ff4539");
-const DOWN2_COLOR = new Color("86362f");
+const BG_COLOR = Color.dynamic(new Color("#ffffff"), new Color("#1c1c1e"));
+const FG_COLOR = Color.dynamic(new Color("#1c1c1e"), new Color("#ffffff"));
+const NEUTRAL1_COLOR = Color.dynamic(new Color("#a6a6a6"), new Color("#a6a6a6"));
+const NEUTRAL2_COLOR = Color.dynamic(new Color("#666666"), new Color("#666666"));
+const ERROR_COLOR = Color.dynamic(new Color("#ff3b30"), new Color("#ff453a"));
+const UP1_COLOR = Color.dynamic(new Color("#34c759"), new Color("#30d158"));
+const UP2_COLOR = Color.dynamic(new Color("#98b69a"), new Color("#31703d"));
+const DOWN1_COLOR = Color.dynamic(new Color("#ff3b30"), new Color("#ff453a"));
+const DOWN2_COLOR = Color.dynamic(new Color("#ffa99b"), new Color("#86362f"));
 
 const WIDGET_SIZE = "large";
 
