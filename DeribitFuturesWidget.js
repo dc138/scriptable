@@ -255,34 +255,33 @@ const addPriceGraph = async (stack, prices, ratio = .5) => {
     context.addPath(backgroundFill);
     context.fillPath();
 
-    context.setStrokeColor(NEUTRAL2_COLOR);
-    context.setLineWidth(width / 200);
-
     const dottedSpace = Math.floor(width / 50);
-
     const startLine = createHorizontalDottedLine(0, first.y, width, dottedSpace);
-    const startLineColor = first.y >= last.y ? UP1_COLOR : DOWN1_COLOR;
 
+    const [color1, color2] = first.y >= last.y ? [UP1_COLOR, UP2_COLOR] : [DOWN1_COLOR, DOWN2_COLOR];
+
+    context.setStrokeColor(color2);
+    context.setLineWidth(width / 130);
     context.addPath(startLine);
-    context.strokePath();
-
-    context.setStrokeColor(startLineColor);
-    context.setLineWidth(width / 150);
-
-    const priceLine = new Path();
-    priceLine.addLines(points);
-    context.addPath(priceLine);
     context.strokePath();
 
     const lastLine = createHorizontalDottedLine(0, last.y, width, dottedSpace);
 
+    context.setStrokeColor(color2);
+    context.setLineWidth(width / 130);
     context.addPath(lastLine);
     context.strokePath();
 
-    const priceGradientColor = first.y >= last.y ? UP2_COLOR : DOWN2_COLOR;
+    const priceLine = new Path();
+    priceLine.addLines(points);
+
+    context.setStrokeColor(color1);
+    context.setLineWidth(width / 120);
+    context.addPath(priceLine);
+    context.strokePath();
 
     const priceGradient = new LinearGradient();
-    priceGradient.colors = [priceGradientColor, BG_COLOR];
+    priceGradient.colors = [color2, BG_COLOR];
     priceGradient.locations = [0, 1];
     priceGradient.startPoint = new Point(0, 0);
     priceGradient.endPoint = new Point(0, 1);
