@@ -6,29 +6,29 @@ const REGULAR_FONT = Font.regularMonospacedSystemFont(14);
 
 const BG_COLOR = new Color("1c1c1e");
 const FG_COLOR = new Color("ffffff");
+const NEUTRAL1_COLOR = new Color("a6a6a6");
+const NEUTRAL2_COLOR = new Color("666666");
 const ERROR_COLOR = new Color("ff4539");
 const UP1_COLOR = new Color("2ed159");
 const UP2_COLOR = new Color("31703d");
 const DOWN1_COLOR = new Color("ff4539");
 const DOWN2_COLOR = new Color("86362f");
-const NEUTRAL1_COLOR = new Color("a6a6a6");
-const NEUTRAL2_COLOR = new Color("666666");
 
 const WIDGET_SIZE = "large";
 
 const API_URL = "https://www.deribit.com/api/v2/";
-const CURRENCY = args.widgetParameter || "BTC";
 
-const GRAPH_TIMEFRAME_MINUTES = 24 * 60;
-const GRAPH_RESOLUTION_MINUTES = 5;
+const GRAPH_TIMEFRAME = "24h"; // "8h", "24h" or "1m";
 
 // Widget Creation
+
+const currency = args.widgetParameter || "BTC";
 
 // Bitcoin and Etherium base64 encoded 48x48 png logos
 const base64Logo = {
     "BTC": "iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAMAAABg3Am1AAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAKFUExURQAAAPeTGviTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGveTGfeYJfeVH/eSGPeWH/zTov3gvPrAeveWIfeUHfeSF/ifNP7x4f////3jw/eWIPigNvzWqPvIivmoRviaKveRF/eRFfmxWf/8+PvLkfeQFPq1Yv/+/vvGhviiOf3kxfzbs/vDgfmtUfibLPvJi//9+vmzX/eQE/vMkvmwWPeRFvq2ZP/69f7t2f706P737vibK/3iwv7w3/q7b/7y4//8+v/+/f706f3oz//58/3gvfigNfq3Zv7u2/716vzRnvmrTPeUHPvOlvvOmPicLfzasf727fmvVvmrTfvEgv/8+fzctPeSGfidMP3nzPq9cvvDf/muUvzSn/vHiP3hv/q6bf/+/P3myveYJP747/mqS/eUG/vQmv7u2v3lyfvOl/q8cPmyXfq2Y//69Pq8cvmtUveaKPvDgP3p0f/79vvGh/737fmpSPicLvmuVPvJjf3q0v/58vvJjPeXI/idL/3nzfeZJ/vEg/737/vKjvmtUPzSoPvEgf705/ikPfmxWvihN/q7bvimQf/9+/mzXf3q0/7z5v/7+P727PilQPeQFfmwV/748PmvVfeYJvmoR/ijPP3lyP7x4v3iwP726/vPmP748f3euP/48frCffieMv7v3veXIv716f7w4P3hvv7r1f7x4P3r1PzXqf/79/vNlPvIi/eVHfibKvifM////vvKj/myW/rAefvQm/3hwPq5a/zYrPzQnFa2groAAAAjdFJOUwAAAAw1baPM5/f+bgEncrvp/LwtkOIVfOM6vwJe5ATz9nHylPAAvgAAAAFiS0dEMdnbHXIAAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfoCBcQBjJJ1kLeAAADX0lEQVRIx5VW+SMUURyfbbFHdq1rWbdm7ajs8KxiJBQqlSGUKyW1RUpSqVBSulOh0qEDHXTp0H3f9338Pb03LO/NbGo/v+zse9/P+57v+30UNQwZgtzJ2UWhVKnVKqXCZbSTXFik7AJuuGq0bjp3egjuOg+txtU+Ax3k6eVNS+Dt5WlPCVzS+/jSduHro5cw4ILBj/4r/AwihkzmHxBIj4DAAH+cIZMFaYPpERGsDRpmwPO1ISIBo5gRoh3SAc0LkJwfZmLEOgJsfkB/JfaHjx03PoI2szgr0DBAgPH0ExvDREaBaEvMhImxuGl+esSAenxweXOcmePiJyWAyYlJyWAKi+/5IKNgfvF8MVNTUtOmTZ8B0mfOmg0SMjgig56I4OqFr/GZAICsOdkgJyN3LpgXSbru5QoJGqJ+2Lz8AoBQWDS/GCwIZ8m60kCCloyPZWHJImBD6eIlVkKHVkbJPUQRZeKXIgXZxQIlZ1kZzvCQU046cQ7M5VBwecWKlSmViLIqt2p4T+dEObuL5KtWI5Oqw3gubE0pYqzFVLg7Uy5iBdy6LChVAzNm5NYjwgYLtutCKSSENCiUvJFHMU6qhd919Vi6FZTSrgubNvMQDVuQhnIztqukVBIXGqFQ+tZtTdt31OxE8dqF50JFqcUW7c4aTEJ6rfBTvgcvQLWUsBeduq+xeTB1+3OJzKklJgkuHDjY0tp2qBB+HT7STlw+ldjpqqPIhWPHGY4tO9GB4nWygSacJsLKcvGnkAunhVvEnEE6OrtwmxRk4lq7z6JCSj7HC/TzOfDPhR6eSBxWGlUtvQUXL0GZy1cSGSNtvNqHPK/s5onSwIqPbRoM6LW26zE3LPU3o9Gfzn6GKD68vPNuFQ3EHjTfrr5Td1f4TDVhFrnJyQvU3lVyLwoQuN/HkheIuKJGhjc/AB3lvek2+YePrOIrSjYB5vETEP009hl4/uLlq6jXb/qsRnETINsMV/EWvEvsqQTvP3z8FBlnZaVthmxksJQ+ZyZ+AZVfeSPDiFqy0MhErdLY/+17jOkHyI9hpGNFb2uueDNmYJpMP3/9tkiHimGoe0vaPdsQIR0pQ+0eDZTQEPofwAaKMLJCxzgwshwfio6PXccHu+NPh0GKJvS/HycQoyTPH2fp8+cPWPpcMkWryPQAAAAldEVYdGRhdGU6Y3JlYXRlADIwMjQtMDgtMjNUMTU6NDA6MzIrMDA6MDCNgftvAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDI0LTA4LTIzVDE1OjQwOjMyKzAwOjAw/NxD0wAAACh0RVh0ZGF0ZTp0aW1lc3RhbXAAMjAyNC0wOC0yM1QxNjowNjo0OSswMDowMKMGUOQAAAAZdEVYdFNvZnR3YXJlAHd3dy5pbmtzY2FwZS5vcmeb7jwaAAAAAElFTkSuQmCC",
     "ETH": "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",
-}[CURRENCY];
+}[currency];
 
 const platform_time = await new Request(API_URL + "public/get_time")
     .loadJSON()
@@ -52,19 +52,13 @@ const fetchIndexInfo = async (currency) => {
             }
         ));
 
-    const start = platform_time - (GRAPH_TIMEFRAME_MINUTES * 60 * 1000);
-    const end = platform_time;
-
-    const prices = await new Request(API_URL + `public/get_tradingview_chart_data?instrument_name=${currency}_USDC&resolution=${GRAPH_RESOLUTION_MINUTES}&start_timestamp=${start}&end_timestamp=${end}`)
+    const prices = await new Request(API_URL + `public/get_funding_chart_data?instrument_name=${currency}-PERPETUAL&length=${GRAPH_TIMEFRAME}`)
         .loadJSON()
         .then((response) => (
             {
-                prices: {
-                    close: response.result.close,
-                    high: response.result.high,
-                    low: response.result.low,
-                    open: response.result.open,
-                }
+                prices: response.result.data
+                    .map((data) => data.index_price)
+                    .filter((_, i) => GRAPH_TIMEFRAME != "24h" || i % 3 == 0)
             }
         ));
 
@@ -73,7 +67,7 @@ const fetchIndexInfo = async (currency) => {
         ...volatility,
         ...prices,
     };
-}
+};
 
 const fetchFuturesInfo = async (currency) => {
     const names = await new Request(API_URL + `public/get_instruments?currency=${currency}&expired=false&kind=future`)
@@ -93,7 +87,6 @@ const fetchFuturesInfo = async (currency) => {
                         difference: response.result.mark_price - response.result.index_price,
                         premium: (response.result.mark_price - response.result.index_price) / response.result.index_price,
                         change: response.result.stats.price_change,
-                        funding: response.result.funding_8h,
                     }
                 ));
 
@@ -146,7 +139,6 @@ const formatFutureInfo = (info) => {
         apr: ((info.premium * 100 * 1000 * 60 * 60 * 24 * 365) / info.tenor).toFixed(2),
     } : {
         ...commonInfoFormat,
-        funding: (info.funding * 100).toFixed(4),
     };
 };
 
@@ -227,7 +219,7 @@ const createHorizontalDottedLine = (startX, startY, endX, space) => {
 }
 
 const addPriceGraph = async (stack, prices, ratio = .5) => {
-    const width = GRAPH_TIMEFRAME_MINUTES / GRAPH_RESOLUTION_MINUTES;
+    const width = prices.length;
     const height = width * ratio;
 
     const context = new DrawContext();
@@ -235,11 +227,14 @@ const addPriceGraph = async (stack, prices, ratio = .5) => {
     context.respectScreenScale = true;
     context.opaque = false;
 
-    const [min, max] = [Math.min(...prices.close), Math.max(...prices.close)];
+    console.log(prices);
+    console.log(prices.length);
 
-    const points = prices.close
+    const [min, max] = [Math.min(...prices), Math.max(...prices)];
+
+    const points = prices
         .map((price) => (price - min) / (max - min))
-        .map((value, i) => new Point(.97 * i, (.99 * (.5 - value) + .5) * height));
+        .map((value, i) => new Point(.97 * i, (.97 * (.5 - value) + .5) * height));
 
     const [first, last] = [points[0], points[points.length - 1]];
 
@@ -256,19 +251,16 @@ const addPriceGraph = async (stack, prices, ratio = .5) => {
     context.fillPath();
 
     const dottedSpace = Math.floor(width / 50);
-    const startLine = createHorizontalDottedLine(0, first.y, width, dottedSpace);
+    const firstLine = createHorizontalDottedLine(0, first.y, width, dottedSpace);
+    const lastLine = createHorizontalDottedLine(0, last.y, width, dottedSpace);
 
     const [color1, color2] = first.y >= last.y ? [UP1_COLOR, UP2_COLOR] : [DOWN1_COLOR, DOWN2_COLOR];
 
     context.setStrokeColor(color2);
     context.setLineWidth(width / 130);
-    context.addPath(startLine);
+
+    context.addPath(firstLine);
     context.strokePath();
-
-    const lastLine = createHorizontalDottedLine(0, last.y, width, dottedSpace);
-
-    context.setStrokeColor(color2);
-    context.setLineWidth(width / 130);
     context.addPath(lastLine);
     context.strokePath();
 
@@ -276,7 +268,7 @@ const addPriceGraph = async (stack, prices, ratio = .5) => {
     priceLine.addLines(points);
 
     context.setStrokeColor(color1);
-    context.setLineWidth(width / 120);
+    context.setLineWidth(width / 125);
     context.addPath(priceLine);
     context.strokePath();
 
@@ -406,8 +398,8 @@ const createWidget = async () => {
     const content = widget.addStack();
     content.layoutVertically();
 
-    await createIndexTable(content, CURRENCY);
-    await createFutureTable(content, CURRENCY);
+    await createIndexTable(content, currency);
+    await createFutureTable(content, currency);
 
     return widget;
 };
