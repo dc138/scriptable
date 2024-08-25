@@ -4,9 +4,13 @@ const TITLE_FONT = Font.boldMonospacedSystemFont(18);
 const HEADER_FONT = Font.mediumMonospacedSystemFont(14);
 const REGULAR_FONT = Font.regularMonospacedSystemFont(14);
 
-const ERROR_COLOR = Color.red();
-const UP_COLOR = Color.green();
-const DOWN_COLOR = Color.red();
+const BG_COLOR = new Color("1c1c1e");
+const FG_COLOR = new Color("ffffff");
+const ERROR_COLOR = new Color("ff4539");
+const UP1_COLOR = new Color("2ed159");
+const UP2_COLOR = new Color("31703d");
+const DOWN1_COLOR = new Color("ff4539");
+const DOWN2_COLOR = new Color("86362f");
 const NEUTRAL1_COLOR = new Color("a6a6a6");
 const NEUTRAL2_COLOR = new Color("666666");
 
@@ -239,13 +243,25 @@ const addPriceGraph = async (stack, prices, ratio = .5) => {
 
     const [first, last] = [points[0], points[points.length - 1]];
 
+    const backgroundFill = new Path();
+    backgroundFill.addLines(points);
+    backgroundFill.addLine(new Point(.97 * width, height));
+    backgroundFill.addLine(new Point(width, height));
+    backgroundFill.addLine(new Point(width, 0));
+    backgroundFill.addLine(new Point(0, 0));
+    backgroundFill.closeSubpath();
+
+    context.setFillColor(BG_COLOR);
+    context.addPath(backgroundFill);
+    context.fillPath();
+
     context.setStrokeColor(NEUTRAL2_COLOR);
     context.setLineWidth(width / 200);
 
     const dottedSpace = Math.floor(width / 50);
 
     const startLine = createHorizontalDottedLine(0, first.y, width, dottedSpace);
-    const startLineColor = first.y >= last.y ? UP_COLOR : DOWN_COLOR;
+    const startLineColor = first.y >= last.y ? UP1_COLOR : DOWN1_COLOR;
 
     context.addPath(startLine);
     context.strokePath();
@@ -263,8 +279,17 @@ const addPriceGraph = async (stack, prices, ratio = .5) => {
     context.addPath(lastLine);
     context.strokePath();
 
+    const priceGradientColor = first.y >= last.y ? UP2_COLOR : DOWN2_COLOR;
+
+    const priceGradient = new LinearGradient();
+    priceGradient.colors = [priceGradientColor, BG_COLOR];
+    priceGradient.locations = [0, 1];
+    priceGradient.startPoint = new Point(0, 0);
+    priceGradient.endPoint = new Point(0, 1);
+
     const image = context.getImage();
     stack.addImage(image);
+    stack.backgroundGradient = priceGradient;
 
     return image;
 };
@@ -277,7 +302,7 @@ const createIndexTable = async (stack, currency) => {
     const title = heading.addStack();
     title.layoutVertically();
 
-    addText(title, "Index", {font: TITLE_FONT});
+    addText(title, "Index", {font: TITLE_FONT, color: FG_COLOR});
     addLine(title, NEUTRAL2_COLOR, 3, 3, 180);
 
     heading.addSpacer(null);
@@ -301,23 +326,26 @@ const createIndexTable = async (stack, currency) => {
     const price = data.addStack();
     price.layoutHorizontally();
 
-    addText(price, "$" + index.price, {font: HEADER_FONT, spaceRight: Math.max(1, 60 - index.price.length * 10)});
-    addText(price, index.change, {font: REGULAR_FONT, color: index.change[0] == "-" ? DOWN_COLOR : UP_COLOR});
+    addText(price, "$" + index.price, {font: HEADER_FONT, spaceRight: Math.max(1, 60 - index.price.length * 10), color: FG_COLOR});
+    addText(price, index.change, {font: REGULAR_FONT, color: index.change[0] == "-" ? DOWN1_COLOR : UP1_COLOR});
 
     addText(data, index.volatility + "dv", {font: REGULAR_FONT, color: NEUTRAL1_COLOR, spaceLeft: 20});
     data.addSpacer(null);
-    addText(data, "Futures", {font: TITLE_FONT});
+    addText(data, "Futures", {font: TITLE_FONT, color: FG_COLOR});
 
     const graph = content.addStack();
     content.layoutHorizontally();
 
     graph.addSpacer(null);
-    const picture = graph.addStack();
-    picture.layoutVertically();
+    const centered = graph.addStack();
+    centered.layoutVertically();
+    centered.centerAlignContent();
 
-    picture.addSpacer(null);
+    centered.addSpacer(null);
+    const picture = centered.addStack();
+    centered.addSpacer(null);
+
     addPriceGraph(picture, index.prices);
-    picture.addSpacer(null);
 }
 
 const createFutureTable = async (stack, currency) => {
@@ -335,10 +363,10 @@ const createFutureTable = async (stack, currency) => {
     const column6 = addColumn(table);
 
     addText(column1, " ", {font: HEADER_FONT});
-    addText(column2, "d%", {font: HEADER_FONT, spaceLeft: null});
-    addText(column3, "Δ$", {font: HEADER_FONT, spaceLeft: null});
-    addText(column4, "Δ%", {font: HEADER_FONT, spaceLeft: null});
-    addText(column5, "y%", {font: HEADER_FONT, spaceLeft: null});
+    addText(column2, "d%", {font: HEADER_FONT, color: FG_COLOR, spaceLeft: null});
+    addText(column3, "Δ$", {font: HEADER_FONT, color: FG_COLOR, spaceLeft: null});
+    addText(column4, "Δ%", {font: HEADER_FONT, color: FG_COLOR, spaceLeft: null});
+    addText(column5, "y%", {font: HEADER_FONT, color: FG_COLOR, spaceLeft: null});
     addText(column6, " ", {font: HEADER_FONT});
 
     column1.addSpacer(5);
@@ -351,19 +379,19 @@ const createFutureTable = async (stack, currency) => {
     const dated = (await fetchFuturesInfo(currency)).sort((a, b) => (a.tenor || -1) - (b.tenor || -1)).map(formatFutureInfo);
     const perpetual = dated.shift();
 
-    addText(column1, perpetual.name, {font: HEADER_FONT});
-    addText(column2, perpetual.change, {font: REGULAR_FONT, color: perpetual.change[0] == "-" ? DOWN_COLOR : UP_COLOR, spaceLeft: null});
-    addText(column3, perpetual.difference, {font: REGULAR_FONT, color: perpetual.difference[0] == "-" ? DOWN_COLOR : UP_COLOR, spaceLeft: null});
-    addText(column4, perpetual.premium, {font: REGULAR_FONT, color: perpetual.premium[0] == "-" ? DOWN_COLOR : UP_COLOR, spaceLeft: null});
+    addText(column1, perpetual.name, {font: HEADER_FONT, color: FG_COLOR});
+    addText(column2, perpetual.change, {font: REGULAR_FONT, color: perpetual.change[0] == "-" ? DOWN1_COLOR : UP1_COLOR, spaceLeft: null});
+    addText(column3, perpetual.difference, {font: REGULAR_FONT, color: perpetual.difference[0] == "-" ? DOWN1_COLOR : UP1_COLOR, spaceLeft: null});
+    addText(column4, perpetual.premium, {font: REGULAR_FONT, color: perpetual.premium[0] == "-" ? DOWN1_COLOR : UP1_COLOR, spaceLeft: null});
     addText(column5, " ", {font: REGULAR_FONT});
     addText(column6, " ", {font: REGULAR_FONT});
 
     for (const future of dated) {
-        addText(column1, future.name, {font: HEADER_FONT});
-        addText(column2, future.change, {font: REGULAR_FONT, color: future.change[0] == "-" ? DOWN_COLOR : UP_COLOR, spaceLeft: null});
-        addText(column3, future.difference, {font: REGULAR_FONT, color: future.difference[0] == "-" ? DOWN_COLOR : UP_COLOR, spaceLeft: null});
-        addText(column4, future.premium, {font: REGULAR_FONT, color: future.premium[0] == "-" ? DOWN_COLOR : UP_COLOR, spaceLeft: null});
-        addText(column5, future.apr, {font: REGULAR_FONT, color: future.apr[0] == "-" ? DOWN_COLOR : UP_COLOR, spaceLeft: null});
+        addText(column1, future.name, {font: HEADER_FONT, color: FG_COLOR});
+        addText(column2, future.change, {font: REGULAR_FONT, color: future.change[0] == "-" ? DOWN1_COLOR : UP1_COLOR, spaceLeft: null});
+        addText(column3, future.difference, {font: REGULAR_FONT, color: future.difference[0] == "-" ? DOWN1_COLOR : UP1_COLOR, spaceLeft: null});
+        addText(column4, future.premium, {font: REGULAR_FONT, color: future.premium[0] == "-" ? DOWN1_COLOR : UP1_COLOR, spaceLeft: null});
+        addText(column5, future.apr, {font: REGULAR_FONT, color: future.apr[0] == "-" ? DOWN1_COLOR : UP1_COLOR, spaceLeft: null});
         addText(column6, future.tenor, {font: REGULAR_FONT, color: NEUTRAL1_COLOR, spaceLeft: null});
     }
 };
@@ -374,6 +402,7 @@ const createWidget = async () => {
     }
 
     const widget = new ListWidget();
+    widget.backgroundColor = BG_COLOR;
 
     const content = widget.addStack();
     content.layoutVertically();
