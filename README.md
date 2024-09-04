@@ -1,9 +1,13 @@
 ![logo](/img/scriptable-logo-small.png)
 
-This repository contains a collection of my personal [scriptable.app](https://scriptable.app/) scripts and widgets:
-All scripts can be downloaded using [ScriptDude](https://scriptdu.de/), which provides one-click installation and automatic updates to scripts.
-Install ScriptDude [here](https://scriptdu.de/#installation).
-Alternatively, yo may also download the script `.js` file and place it on your scripts directory directly.
+This repository contains a collection of my personal [scriptable.app](https://scriptable.app/) scripts and widgets.
+Scriptable is a free iOS automation tool that enables you to controll your device using javascript.
+
+All scripts can be installed using [ScriptDude](https://scriptdu.de/), which provides one-click installation and automatic updates for scripts.
+Get ScriptDude [here](https://scriptdu.de/#installation).
+Alternatively, yo may also download the `.js` files directly and place them on your scriptable's scripts directory.
+
+List of scripts:
 
 1. [Deribit Markers Widget](/?tab=readme-ov-file#deribit-futures-widget)
 
