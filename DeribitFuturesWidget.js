@@ -2,17 +2,17 @@
 // futures market information from Deribit.
 //
 // Copyright © 2024 Antonio de Haro
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
 // the rights to use, copy, modify, merge, publish, distribute, sublicense,
 // and/or sell copies of the Software, and to permit persons to whom the
 // Software is furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included
 // in all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 // EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
 // OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -148,7 +148,7 @@ const formatFutureInfo = (info) => {
         name: formatName(info.name, info.tenor),
         difference: info.difference.toFixed(),
         premium: (info.premium * 100).toFixed(2),
-        change: info.change.toFixed(2),
+        change: info.change ? info.change.toFixed(2) : "",
     };
 
     const formatTenor = (tenor) => {
@@ -249,9 +249,6 @@ const addPriceGraph = async (stack, prices, ratio = .5) => {
     context.size = new Size(width, height);
     context.respectScreenScale = true;
     context.opaque = false;
-
-    console.log(prices);
-    console.log(prices.length);
 
     const [min, max] = [Math.min(...prices), Math.max(...prices)];
 
