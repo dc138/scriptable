@@ -351,6 +351,7 @@ const createIndexTable = async (stack, currency) => {
     const centered = graph.addStack();
     centered.layoutVertically();
     centered.centerAlignContent();
+    graph.addSpacer(null);
 
     centered.addSpacer(null);
     const picture = centered.addStack();
