@@ -1,7 +1,7 @@
 ![logo](/img/scriptable-logo-small.png)
 
 This repository contains a collection of my personal [scriptable.app](https://scriptable.app/) scripts and widgets.
-Scriptable is a free iOS automation tool that enables you to controll your device using javascript.
+Scriptable is a free iOS automation tool that can be used to create dynamic widgets and scripts using javascript.
 
 All scripts can be installed using [ScriptDude](https://scriptdu.de/), which provides one-click installation and automatic updates for scripts.
 Get ScriptDude [here](https://scriptdu.de/#installation).
@@ -14,14 +14,14 @@ List of scripts:
 ## Deribit Futures Widget
 
 Fetches and displays future data for bitcoin and etherium on [Deribit](https://www.deribit.com/).
-By default, the graph generated tracks the last 24 hours of price action, but this can be configured by editing the script.
-The index 24 hour change and volatility are also shown.
+By default, the generated graph tracks the last 24 hours of price action, but this can be configured by editing the script.
+The index change over the last 24 hours and volatility score are also shown.
 
-For each future, the table shows:
-- the last 24 hour percentage move,
+For each of the listed futures, the table shows:
+- the percentage move over the last 24 hours,
 - dollar preium above the index,
 - percentage premium above the index,
-- annualized basis yield
+- annualized basis yield,
 - and tenor in days or hours.
 
 The currency can be configured by passing either `BTC` or `ETH` to the widget arguments.
